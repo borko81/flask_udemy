@@ -1,12 +1,17 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_jwt import JWT, jwt_required
+
+from security import authenticate, identity
 
 
 app = Flask(__name__)
+app.secret_key = 'botk@'
 api = Api(app)
+jwt = JWT(app, authenticate, identity)  # /auth
 
 items = []
-
+ 
 
 class _Helper:
     @staticmethod
@@ -18,6 +23,7 @@ class Item(Resource, _Helper):
     """
         Return possible item
     """
+    @jwt_required()
     def get(self, name):
         item = _Helper.check_name_in_list(name)
         return item, 200 if item else 404
