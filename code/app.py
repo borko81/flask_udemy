@@ -11,12 +11,16 @@ api = Api(app)
 jwt = JWT(app, authenticate, identity)  # /auth
 
 items = []
- 
+
 
 class _Helper:
     @staticmethod
     def check_name_in_list(name):
         return next(filter(lambda x: x['name'] == name, items), None)
+
+    @staticmethod
+    def all_item_except_searching_for(name):
+        return list(filter(lambda n: n['name'] != name, items))
 
 
 class Item(Resource, _Helper):
@@ -39,6 +43,23 @@ class Item(Resource, _Helper):
         item = {"name": name, "price": data['price']}
         items.append(item)
         return item, 201
+
+    def delete(self, name):
+        """
+            Looked all elelemns in list except for searching for
+        """
+        global items
+        items = _Helper.all_item_except_searching_for(name)
+        return {"message": f"Item {name} deleted successfully"}, 204
+
+    def put(self, name):
+        data = request.get_json()
+        item = _Helper.check_name_in_list(name)
+        if item is None:
+            item = {"name": name, "price": data['price']}
+            items.append(item)
+        item.update(name)
+        return {"message": "Operation was successfull"}, 200
 
 
 class ItemList(Resource):
