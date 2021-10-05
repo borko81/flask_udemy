@@ -29,9 +29,8 @@ class User:
             if row:
                 user = cls(*row)
                 return user
-            else:
-                user = None
-                return user
+            user = None
+            return user
         finally:
             connection.close()
 
