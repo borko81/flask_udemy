@@ -1,62 +1,7 @@
 import sqlite3
 from flask_restful import Resource, reqparse
 
-
-class User:
-    """
-        Create user, use classmethod, to initialize user class from given username
-    """
-    def __init__(self, _id, username, password):
-        self.id = _id
-        self.username = username
-        self.password = password
-
-    @classmethod
-    def find_by_username(cls, username):
-        """
-            This method search user in database
-        """
-        try:
-            connection = sqlite3.connect("data.db")
-        except sqlite3.Error as er:
-            raise ValueError(er)
-        else:
-            cursor = connection.cursor()
-
-            query = "SELECT * FROM users WHERE username=?"
-            result = cursor.execute(query, (username, ))
-            row = result.fetchone()
-            if row:
-                user = cls(*row)
-                return user
-            user = None
-            return user
-        finally:
-            connection.close()
-
-    @classmethod
-    def find_by_id(cls, _id):
-        """
-            This method search user in db from given as id
-        """
-        try:
-            connection = sqlite3.connect("data.db")
-        except sqlite3.Error as er:
-            raise ValueError(er)
-        else:
-            cursor = connection.cursor()
-
-            query = "SELECT * FROM users WHERE id=?"
-            result = cursor.execute(query, (_id, ))
-            row = result.fetchone()
-            if row:
-                user = cls(*row)
-                return user
-            else:
-                user = None
-                return user
-        finally:
-            connection.close()
+from ..models.user import UserModel
 
 
 class UserRegister(Resource):
@@ -74,7 +19,7 @@ class UserRegister(Resource):
         data = UserRegister.parser.parse_args()
 
         # this validata username unique
-        if User.find_by_username(data['username']):
+        if UserModel.find_by_username(data['username']):
             return {"message": "This username not allowed!"}, 400
 
         try:
@@ -97,5 +42,5 @@ class UserRegister(Resource):
 
 
 if __name__ == '__main__':
-    u = User.find_by_username("borko")
+    u = UserModel.find_by_username("borko")
     print(u)

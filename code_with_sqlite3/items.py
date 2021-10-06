@@ -3,7 +3,6 @@ from sqlite3 import connect
 from flask_jwt import jwt_required
 from flask_restful import Resource, reqparse
 from flask import request
-from models.item import ItemModel
 
 
 class Item(Resource):
@@ -15,26 +14,29 @@ class Item(Resource):
     parser.add_argument('price', type=float, required=True, help='price input')
 
     def get(self, name):
-        item = ItemModel.find_by_name(name)
-        if item:
-            return item.json()
+        connection = sqlite3.connect("data.db")
+        cursor = connection.cursor()
+        query = "SELECT * FROM items where name=?"
+        result = cursor.execute(query, (name,))
+        row = result.fetchone()
+        connection.close()
+
+        if row:
+            return {"item": {'name': row[0], 'price': row[1]}}
         return {'message': 'Item not found'}, 404
 
     def post(self, name):
         """
             Create new item, get price from request.get_json()
         """
-        if ItemModel.find_by_name(name):
-            return {'message': "An item with this name already exists"}
-
+        connection = sqlite3.connect("data.db")
+        cursor = connection.cursor()
+        query = "INSERT INTO items VALUES(?, ?)"
         data = Item.parser.parse_args()
-
-        item = ItemModel(name, data['price'])
-
-        try:
-            item.insert()
-        except:
-            return {'message': "An error occured while try to insert new item"}
+        cursor.execute(query, (name, data['price']))
+        connection.commit()
+        connection.close()
+        return {'message': 'New item was created'}, 201
 
     def delete(self, name):
         """
@@ -54,21 +56,13 @@ class Item(Resource):
 
     def put(self, name):
         data = Item.parser.parse_args()
-        item = ItemModel.find_by_name(name)
-        updated_item = {'name': name, 'price': data['price']}
-
-        if item is None:
-            try:
-                updated_item.insert()
-                ItemModel.insert(updated_item)
-            except:
-                return {'message': "An error occured  while try to insert item"}, 500
-        else:
-            try:
-                ItemModel.update(updated_item)
-            except:
-                return {'message': "An error occured while try to update item"}, 500
-        return updated_item
+        connection = sqlite3.connect("data.db")
+        cursor = connection.cursor()
+        query = 'UPDATE items SET price=? WHERE name=?'
+        cursor.execute(query, (data['price'], name,))
+        connection.commit()
+        connection.close()
+        return {'message': 'Item was updated successfully'}, 201
 
 
 class ItemList(Resource):
