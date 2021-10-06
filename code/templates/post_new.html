@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Post new item</h3>
+    <form action="" id="myform" method="POST">
+        <label for="">Name
+            <input type="text" placeholder="enter name" id="name">
+        </label>
+        <label for="">Price
+            <input type="text" placeholder="enter price" id="price">
+        </label>
+        <button id="mybut">Save</button>
+    </form>
+
+<script>
+    
+    let b = document.getElementById("mybut");
+
+    b.addEventListener('click', function () {
+        
+        let mname = document.getElementById("name").value;
+        let price = document.getElementById("price");
+        let URL = `http://127.0.0.1:5000/item/${mname}`;
+        fetch(URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({"price": 101})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+    })
+    
+</script>
+</body>
+</html>

@@ -19,6 +19,12 @@ def fetch_get_all_items():
     return render_template('get_all_items.html')
 
 
+# Fetch post new items
+@app.route('/fetch_new', methods=["POST", "GET"])
+def fetch_post_new_item():
+    return render_template('post_new.html')
+
+
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
 api.add_resource(UserRegister, '/register')
