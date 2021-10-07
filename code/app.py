@@ -8,6 +8,8 @@ from resources.users import UserRegister
 
 app = Flask(__name__)
 app.secret_key = 'botk@'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 jwt = JWT(app, authenticate, identity)  # /auth
 from resources.items import Item, ItemList
@@ -31,4 +33,6 @@ api.add_resource(UserRegister, '/register')
 
 
 if __name__ == '__main__':
+    from db import db
+    db.init_app(app)
     app.run(debug=True)

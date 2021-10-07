@@ -5,7 +5,6 @@ cursor = connection.cursor()
 
 create_table = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username text unique, password text)"
 cursor.execute(create_table)
-
 # insert_query = "INSERT INTO users VALUES (?, ?, ?)"
 
 # users = [
@@ -20,9 +19,8 @@ cursor.execute(create_table)
 # for user in select_query.fetchall():
 #     print(user)
 
-create_table = "CREATE TABLE IF NOT EXISTS items (name text, price real)"
+create_table = "CREATE TABLE IF NOT EXISTS items (id integer primary key, name text, price real)"
 cursor.execute(create_table)
-cursor.execute("insert into items values ('test2', 11.00)")
 
 connection.commit()
 connection.close()

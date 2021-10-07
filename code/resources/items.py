@@ -32,7 +32,7 @@ class Item(Resource):
         item = ItemModel(name, data['price'])
 
         try:
-            item.insert()
+            item.save_to_db()
         except:
             return {'message': "An error occured while try to insert new item"}
 
@@ -40,35 +40,26 @@ class Item(Resource):
         """
             Looked all elelemns in list except for searching for
         """
-        connection = sqlite3.connect("data.db")
-        cursor = connection.cursor()
-        query = "DELETE FROM items WHERE NAME=?"
-        try:
-            cursor.execute(query, (name,))
-            connection.commit()
-        except sqlite3.Error:
-            raise ValueError('Error when try to delete item')
-        finally:
-            connection.close()
-        return {'message': f'Item with name {name} was deleted'}, 204
+        item = ItemModel.find_by_name(name)
+        if item:
+            ItemModel.delete_from_db()
 
     def put(self, name):
         data = Item.parser.parse_args()
         item = ItemModel.find_by_name(name)
-        updated_item = {'name': name, 'price': data['price']}
 
         if item is None:
             try:
-                updated_item.insert()
-                ItemModel.insert(updated_item)
+                item = ItemModel(name, data['price'])
             except:
                 return {'message': "An error occured  while try to insert item"}, 500
         else:
             try:
-                ItemModel.update(updated_item)
+                item.price = data['price']
             except:
                 return {'message': "An error occured while try to update item"}, 500
-        return updated_item
+        item.save_to_db()
+        return item.json()
 
 
 class ItemList(Resource):
