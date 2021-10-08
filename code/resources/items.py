@@ -67,15 +67,5 @@ class ItemList(Resource):
         Return lsit with items
     """
     def get(self):
-        connection = sqlite3.connect("data.db")
-        cursor = connection.cursor()
-        query = "SELECT * FROM items"
-        result = cursor.execute(query)
-        data = result.fetchall()
-        connection.close()
-        result = []
-        for line in data:
-            item = {'name': line[0], 'price': line[1]}
-            result.append(item)
-        return {'items': result}
-
+        items = {'items': list(map(lambda x: x.json(), ItemModel.query.all()))}
+        return items
